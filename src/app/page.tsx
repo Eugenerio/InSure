@@ -4,14 +4,16 @@ import {BGImage, Header} from "@/components";
 import {IDKitWidget, ISuccessResult, VerificationLevel} from '@worldcoin/idkit'
 import {Button} from "@/components/ui/button";
 import {toast} from "react-toastify";
+import {useWCContext} from "@/lib/context";
 
 
 
 export default function Home() {
+    const { wcSaveAuthData } = useWCContext();
+
     const onSuccess = () => {
         console.log("HELLO HERE VERIFIED PERSON");
     }
-
 
     const handleVerify = async (proof: ISuccessResult) => {
        try {
@@ -21,7 +23,10 @@ export default function Home() {
                    "Content-Type": "application/json",
                },
                body: JSON.stringify(proof),
-           })
+           });
+           const { iv, payload } = await res.json();
+
+           wcSaveAuthData(iv, payload);
            if (!res.ok) {
                throw new Error("Verification Failed");
            }
@@ -46,20 +51,11 @@ export default function Home() {
                           signal="user_value"
                           onSuccess={onSuccess}
                           handleVerify={handleVerify}
-                          verification_level={VerificationLevel.Device}
+                          verification_level={VerificationLevel.Orb}
                       >
                           {({ open }) => <Button onClick={open}>Verify with World ID</Button>}
                       </IDKitWidget>
                   </div>
-                  {/*<div className={"h-full"} id={"table"}>*/}
-                  {/*    {*/}
-                  {/*        Array.from(Array(10)).map((item, i) => (*/}
-                  {/*            <div className={""} key={`table-item-${i}`}>*/}
-                  {/*                Some text {i}*/}
-                  {/*            </div>*/}
-                  {/*        ))*/}
-                  {/*    }*/}
-                  {/*</div>*/}
               </div>
           </div>
       </div>
