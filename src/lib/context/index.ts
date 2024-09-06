@@ -1,9 +1,3 @@
-import {
-    WCProvider,
-    useWCContext
-} from "./wc-context";
+import { WCProvider, useWCContext } from "./wc-context";
 
-export {
-    WCProvider,
-    useWCContext
-}
+export { WCProvider, useWCContext };

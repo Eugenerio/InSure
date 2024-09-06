@@ -1,5 +1,3 @@
-import {addressFormat} from "@/lib/helpers/address-format";
+import { addressFormat } from "@/lib/helpers/address-format";
 
-export {
-    addressFormat
-}
+export { addressFormat };
