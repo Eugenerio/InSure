@@ -42,11 +42,11 @@ export default function Home() {
                   <div className={"h-full"} id={"form"}>
                       <IDKitWidget
                           app_id={process.env.WC_APP_ID as `app_${string}`}
-                          action="vote_1"
-                          signal="user_value" // any arbitrary value the user is committing to, e.g. a vote
+                          action="sign_in"
+                          signal="user_value"
                           onSuccess={onSuccess}
                           handleVerify={handleVerify}
-                          verification_level={VerificationLevel.Device} // minimum verification level accepted, defaults to "orb"
+                          verification_level={VerificationLevel.Device}
                       >
                           {({ open }) => <Button onClick={open}>Verify with World ID</Button>}
                       </IDKitWidget>
