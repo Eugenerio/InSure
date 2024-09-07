@@ -8,7 +8,14 @@ import {
 } from "@/components/ui/dialog";
 import { useAccount, useConnect, useDisconnect, useEnsName } from "wagmi";
 import { addressFormat } from "@/lib/helpers";
-import {Button, Label, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components";
+import {
+  Button,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components";
 import { metaMask } from "wagmi/connectors";
 import {
   IDKitWidget,
@@ -18,13 +25,12 @@ import {
 } from "@worldcoin/idkit";
 import { toast } from "react-toastify";
 import { useWCContext } from "@/lib/context";
-import {verify} from "@/lib/helpers/verify";
+import { verify } from "@/lib/helpers/verify";
 
 export const ConnectModal = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const { proof, setProof } = useWCContext();
   const { connect } = useConnect();
-
 
   const { disconnect } = useDisconnect();
 
@@ -55,8 +61,8 @@ export const ConnectModal = () => {
 
   const handleProof = async (result: ISuccessResult) => {
     console.log(
-        "Proof received from IDKit, sending to backend:\n",
-        JSON.stringify(result)
+      "Proof received from IDKit, sending to backend:\n",
+      JSON.stringify(result),
     );
     const data = await verify(result);
     if (data.success) {
@@ -96,11 +102,9 @@ export const ConnectModal = () => {
     >
       <DialogTrigger asChild>
         <Button className={"p-5 rounded-lg"} variant={"secondary"}>
-          {
-            isWalletConnected
+          {isWalletConnected
             ? ensName.data || addressFormat(account.address!)
-            : "Connect your EVM wallet"
-          }
+            : "Connect your EVM wallet"}
         </Button>
       </DialogTrigger>
       <DialogContent className={"max-w-[400px] z-[99999]"}>
@@ -112,15 +116,14 @@ export const ConnectModal = () => {
             <span className={"mt-5"}>
               You have already successfully connected your{" "}
               <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <i>{ensName.data || addressFormat(account.address!)}</i>
-              </TooltipTrigger>
-              <TooltipContent>{account.address}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-              {" "}to InSure
-              website
+                <Tooltip>
+                  <TooltipTrigger>
+                    <i>{ensName.data || addressFormat(account.address!)}</i>
+                  </TooltipTrigger>
+                  <TooltipContent>{account.address}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>{" "}
+              to InSure website
             </span>
             <Button className={"p-5 mt-10"} onClick={() => disconnect()}>
               Disconnect your wallet
@@ -144,20 +147,23 @@ export const ConnectModal = () => {
             <Label className={"text-md font-medium mt-5"}>
               2. Verify with World ID
             </Label>
-              <IDKitWidget
-                app_id={process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`}
-                action={process.env.NEXT_PUBLIC_WLD_ACTION as string}
-                onSuccess={onSuccess}
-                handleVerify={handleProof}
-                onError={errorHandler}
-                verification_level={VerificationLevel.Device}
-              >
-                {({ open }) => (
-                  <Button onClick={() => isWCDataExist ? null : open()} className={"w-[200px] mt-5"}>
-                    {isWCDataExist ? "Already verified" : "Verify with World ID"}
-                  </Button>
-                )}
-              </IDKitWidget>
+            <IDKitWidget
+              app_id={process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`}
+              action={process.env.NEXT_PUBLIC_WLD_ACTION as string}
+              onSuccess={onSuccess}
+              handleVerify={handleProof}
+              onError={errorHandler}
+              verification_level={VerificationLevel.Device}
+            >
+              {({ open }) => (
+                <Button
+                  onClick={() => (isWCDataExist ? null : open())}
+                  className={"w-[200px] mt-5"}
+                >
+                  {isWCDataExist ? "Already verified" : "Verify with World ID"}
+                </Button>
+              )}
+            </IDKitWidget>
             <Button
               className={"mt-10"}
               disabled={isWCDataExist || isWalletConnected}
