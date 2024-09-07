@@ -15,25 +15,90 @@ import {
 import { formScheme } from "@/lib/schemas";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
+import {WrapperBuilder} from "@redstone-finance/evm-connector";
+import {insuranceAbi, insuranceAddress} from "@/lib/wagmi/contract/abi";
+import {Contract} from "ethers";
+import {useAccount, useSwitchChain} from "wagmi";
+import {useState} from "react";
+import {getTransactionReceipt, writeContract} from "@wagmi/core";
+import {wagmiConfig} from "@/lib/wagmi/config";
+import {erc20Abi} from "viem";
+import {TransactionModal} from "@/components/molecules/transaction";
+import insuranceAbiJSON from "@/lib/wagmin/contract/abi.json";
+
+const OP_SEPOLIA = 11155420;
+const YEAR_DURATION = 360;
+const SECONDS_IN_DAY  = 86400;
 
 export const SubmitForm = () => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [txHash, setTxHash] = useState<string>("");
+
+  const [ status, setStatus ] = useState<"loading" | "error" | "success" | "idle">("idle");
+
+  const account = useAccount();
+
+  const { switchChainAsync } = useSwitchChain();
+
   const formik = useFormik({
     validationSchema: formScheme,
     initialValues: {
       protectedAmount: 1,
-      protectedWallet: "",
+      protectedWallet: account.address || "",
       coverageDuration: 1,
-      coverageUntil: new Date().toISOString().split("T")[0],
-      premium: 1,
     },
     validateOnChange: true,
     validateOnBlur: false,
     enableReinitialize: true,
     onSubmit: async (value) => {
       try {
-        console.log("Values", value);
+        setOpen(true);
+        setStatus("loading")
+
+        const contract = new Contract(insuranceAddress, insuranceAbiJSON) as any;
+
+        const wrappedContract = WrapperBuilder.wrap(contract).usingSimpleNumericMock({
+          mockSignersCount: 10,
+          dataPoints: [
+            { dataFeedId: "USDT", value: 1 },
+          ],
+        });
+        console.log("Wrapped Contract", wrappedContract)
+
+        const insuredAmount = value.protectedAmount;
+        const duration = value.protectedAmount * SECONDS_IN_DAY;
+        const policyPriceAPR = 5;
+
+        await switchChainAsync({
+          chainId: OP_SEPOLIA,
+        });
+
+        const insuranceFee = (insuredAmount * policyPriceAPR * duration) / (YEAR_DURATION * 100);
+
+        await writeContract(wagmiConfig, {
+          abi: erc20Abi,
+          address: "0x478b538abc23e414a1007f715f95e20b85e728a3",
+          functionName: "approve",
+          args: [insuranceAddress, BigInt(insuranceFee) ],
+          chainId: OP_SEPOLIA
+        })
+
+        const tx = await wrappedContract.createPolicy(value.protectedAmount, value.coverageDuration);
+        setTxHash(tx);
+
+        const receipt = await getTransactionReceipt(wagmiConfig, {
+          hash: tx as `0x${string}`,
+          chainId: OP_SEPOLIA,
+        });
+        setStatus("success")
+
+        if (receipt.status == "reverted") {
+          toast("Reverted Transaction", { type: "error" });
+          setStatus("error")
+        }
       } catch (e: any) {
         console.log(e);
+        setOpen(false);
         toast(e.message, { type: "error" });
       }
     },
@@ -42,16 +107,12 @@ export const SubmitForm = () => {
   const isSubmitButtonDisabled =
     !!formik.errors.protectedWallet ||
     !!formik.errors.protectedAmount ||
-    !!formik.errors.premium ||
-    !!formik.errors.coverageUntil ||
     !!formik.errors.coverageDuration;
 
   return (
     <form onSubmit={formik.handleSubmit} id={"form"}>
       <div className="w-full h-full mt-10 flex justify-center items-center">
-        {/* Two columns: Form on the left and HowItWorks on the right */}
         <div className="flex w-full">
-          {/* Left Column - Form */}
           <div className="flex flex-col w-[55%] p-6 bg-white shadow-md rounded-lg">
             <Label className="text-3xl font-bold mb-8 w-full text-center">
               Apply for USDC Depeg Protection
@@ -67,6 +128,7 @@ export const SubmitForm = () => {
                   onChange={formik.handleChange}
                   type="text"
                   name="protectedWallet"
+                  disabled
                   className="mt-2 rounded-md border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
                 />
                 {formik.errors.protectedWallet && (
@@ -113,42 +175,6 @@ export const SubmitForm = () => {
                   </span>
                 )}
               </div>
-              <div className="flex flex-col ml-5 w-full">
-                <Label htmlFor="coverageUntil" className="text-lg">
-                  Coverage Until
-                </Label>
-                <Input
-                  value={formik.values.coverageUntil}
-                  id="coverageUntil"
-                  onChange={formik.handleChange}
-                  type="date"
-                  className="mt-2 rounded-md border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                  name="coverageUntil"
-                />
-                {formik.errors.coverageUntil && (
-                  <span className="text-sm font-medium text-red-600 mt-1">
-                    {formik.errors.coverageUntil}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="w-full mt-5">
-              <Label htmlFor="premium" className="text-lg">
-                Premium
-              </Label>
-              <Input
-                value={formik.values.premium}
-                id="premium"
-                onChange={formik.handleChange}
-                type="number"
-                className="mt-2 rounded-md border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                name="premium"
-              />
-              {formik.errors.premium && (
-                <span className="text-sm font-medium text-red-600 mt-1">
-                  {formik.errors.premium}
-                </span>
-              )}
             </div>
             <div className="w-full mt-5 flex justify-center">
               <Button
@@ -169,6 +195,13 @@ export const SubmitForm = () => {
           </div>
         </div>
       </div>
+      <TransactionModal
+        open={open}
+        setOpen={setOpen}
+        txHash={txHash}
+        status={status}
+      />
+
     </form>
   );
 };

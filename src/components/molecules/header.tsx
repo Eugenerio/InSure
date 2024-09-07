@@ -31,10 +31,8 @@ export const Header = () => (
         </a>
       </nav>
 
-      {/* Connect Modal */}
-      <div className="ml-4">
         <ConnectModal />
-      </div>
+
     </div>
   </header>
 );

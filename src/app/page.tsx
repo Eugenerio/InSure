@@ -1,5 +1,5 @@
 "use client";
-import { Header, TableComponent, SubmitForm } from "@/components";
+import {Header, TableComponent, SubmitForm, BGImage} from "@/components";
 
 export default function Home() {
   return (
@@ -8,9 +8,7 @@ export default function Home() {
         "w-full min-h-screen top-0 overflow-hidden scroll-smooth relative"
       }
     >
-      {/* Dark background with gradient and subtle blur effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-800 to-gray-900 z-0"></div>
-
+      <BGImage />
       <Header />
 
       <div className={"w-full min-h-screen p-32 z-10 pt-20 relative"}>
