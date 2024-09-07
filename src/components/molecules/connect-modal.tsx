@@ -99,7 +99,7 @@ export const ConnectModal = () => {
       }}
     >
       <DialogTrigger asChild>
-        <Button className={"p-5 rounded-lg"} variant={"secondary"}>
+        <Button className={"p-5 rounded-lg ml-4"} variant={"secondary"}>
           {isWalletConnected
             ? ensName.data || addressFormat(account.address!)
             : "Connect your EVM wallet"}

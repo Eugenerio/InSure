@@ -684,6 +684,7 @@ export const insuranceAbi = [{
     "deployedLinkReferences": {}
 }] as const;
 
+
 export const insuranceAddress =
     "0x3ed6f48ba9fca1a33e959a7628f5b59c15b6b6b9" as const;
 
