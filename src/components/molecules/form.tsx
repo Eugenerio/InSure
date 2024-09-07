@@ -16,15 +16,17 @@ import { formScheme } from "@/lib/schemas";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import {WrapperBuilder} from "@redstone-finance/evm-connector";
-import {insuranceAbi, insuranceAddress} from "@/lib/wagmi/contract/abi";
-import {Contract} from "ethers";
+import {insuranceAddress} from "@/lib/wagmi/contract/abi";
 import {useAccount, useSwitchChain} from "wagmi";
 import {useState} from "react";
 import {getTransactionReceipt, writeContract} from "@wagmi/core";
 import {wagmiConfig} from "@/lib/wagmi/config";
 import {erc20Abi} from "viem";
 import {TransactionModal} from "@/components/molecules/transaction";
-import insuranceAbiJSON from "@/lib/wagmi/contract/abi.json";
+import res, { abi } from "@/lib/wagmi/contract/abi.json";
+import {Contract} from "ethers";
+import {useEthersSigner} from "@/lib/wagmi/ethersjs";
+
 
 const OP_SEPOLIA = 11155420;
 const YEAR_DURATION = 360;
@@ -33,7 +35,7 @@ const SECONDS_IN_DAY  = 86400;
 export const SubmitForm = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [txHash, setTxHash] = useState<string>("");
-
+  const signer = useEthersSigner()
   const [ status, setStatus ] = useState<"loading" | "error" | "success" | "idle">("idle");
 
   const account = useAccount();
@@ -52,50 +54,69 @@ export const SubmitForm = () => {
     enableReinitialize: true,
     onSubmit: async (value) => {
       try {
-        setOpen(true);
-        setStatus("loading")
+        // setOpen(true);
+        // setStatus("loading")
 
-        const contract = new Contract(insuranceAddress, insuranceAbiJSON) as any;
-
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const res = require("@/lib/wagmi/contract/abi.json");
+        console.log("ABI", res.abi);
+        console.log("Signer", signer)
+        console.log("insuranceAddress", insuranceAddress);
+        const contract = new Contract("0x3ed6f48ba9fca1a33e959a7628f5b59c15b6b6b9",
+            res.abi,
+            signer) as any;
+        console.log("Contract", contract)
         const wrappedContract = WrapperBuilder.wrap(contract).usingSimpleNumericMock({
           mockSignersCount: 10,
           dataPoints: [
             { dataFeedId: "USDT", value: 1 },
           ],
-        });
-        console.log("Wrapped Contract", wrappedContract)
-
-        const insuredAmount = value.protectedAmount;
-        const duration = value.protectedAmount * SECONDS_IN_DAY;
-        const policyPriceAPR = 5;
-
-        await switchChainAsync({
-          chainId: OP_SEPOLIA,
-        });
-
-        const insuranceFee = (insuredAmount * policyPriceAPR * duration) / (YEAR_DURATION * 100);
-
-        await writeContract(wagmiConfig, {
-          abi: erc20Abi,
-          address: "0x478b538abc23e414a1007f715f95e20b85e728a3",
-          functionName: "approve",
-          args: [insuranceAddress, BigInt(insuranceFee) ],
-          chainId: OP_SEPOLIA
         })
 
-        const tx = await wrappedContract.createPolicy(value.protectedAmount, value.coverageDuration);
-        setTxHash(tx);
-
-        const receipt = await getTransactionReceipt(wagmiConfig, {
-          hash: tx as `0x${string}`,
-          chainId: OP_SEPOLIA,
-        });
-        setStatus("success")
-
-        if (receipt.status == "reverted") {
-          toast("Reverted Transaction", { type: "error" });
-          setStatus("error")
-        }
+        console.log("Wrapped Contract", wrappedContract);
+        // const wrappedContract = WrapperBuilder.wrap(contract).usingSimpleNumericMock({
+        //   mockSignersCount: 10,
+        //   dataPoints: [
+        //     { dataFeedId: "USDT", value: 1 },
+        //   ],
+        // });
+        // console.log("Wrapped Contract", wrappedContract)
+        //
+        // const insuredAmount = value.protectedAmount;
+        // const duration = value.protectedAmount * SECONDS_IN_DAY;
+        // const policyPriceAPR = 5;
+        //
+        // await switchChainAsync({
+        //   chainId: OP_SEPOLIA,
+        // });
+        //
+        // const insuranceFee = (insuredAmount * policyPriceAPR * duration) / (YEAR_DURATION * 100);
+        //
+        // await writeContract(wagmiConfig, {
+        //   abi: erc20Abi,
+        //   address: "0x478b538abc23e414a1007f715f95e20b85e728a3",
+        //   functionName: "approve",
+        //   args: [insuranceAddress, BigInt(insuranceFee) ],
+        //   chainId: OP_SEPOLIA
+        // }).then(e => {
+        //   throw new Error(e)
+        // })
+        //
+        // const tx = await wrappedContract.createPolicy(value.protectedAmount, value.coverageDuration);
+        // setTxHash(tx);
+        //
+        // const receipt = await getTransactionReceipt(wagmiConfig, {
+        //   hash: tx as `0x${string}`,
+        //   chainId: OP_SEPOLIA,
+        // }).catch(e => {
+        //   throw new Error(e)
+        // });
+        // setStatus("success")
+        //
+        // if (receipt.status == "reverted") {
+        //   toast("Reverted Transaction", { type: "error" });
+        //   setStatus("error")
+        // }
       } catch (e: any) {
         console.log(e);
         setOpen(false);
