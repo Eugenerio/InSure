@@ -82,7 +82,7 @@ export const ConnectModal = () => {
         disconnect();
       }
       setOpenModal(false);
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
       toast(e.message, { type: "error" });
     }
@@ -106,7 +106,6 @@ export const ConnectModal = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className={"max-w-[400px] z-[99999] "}>
-        {/* Applying a font-sans or any preferred font */}
         <DialogHeader className={"text-center w-full "}>
           <DialogTitle className={"font-lg text-lg"}>
             Connect Wallet
@@ -114,7 +113,6 @@ export const ConnectModal = () => {
         </DialogHeader>
         {isWalletConnected && isWCDataExist ? (
           <div className={"w-full h-full flex flex-col font-mono"}>
-            {/* Custom font for the content */}
             <span className={"mt-5"}>
               You have already successfully connected your{" "}
               <TooltipProvider>
