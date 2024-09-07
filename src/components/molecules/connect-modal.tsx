@@ -31,7 +31,6 @@ export const ConnectModal = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const { proof, setProof } = useWCContext();
   const { connect } = useConnect();
-
   const { disconnect } = useDisconnect();
 
   const account = useAccount();
@@ -62,11 +61,11 @@ export const ConnectModal = () => {
   const handleProof = async (result: ISuccessResult) => {
     console.log(
       "Proof received from IDKit, sending to backend:\n",
-      JSON.stringify(result),
+      JSON.stringify(result)
     );
     const data = await verify(result);
     if (data.success) {
-      console.log("Successful response from backend:\n", JSON.stringify(data)); // Log the response from our backend for visibility
+      console.log("Successful response from backend:\n", JSON.stringify(data));
     } else {
       throw new Error(`Verification failed: ${data.detail}`);
     }
@@ -82,7 +81,6 @@ export const ConnectModal = () => {
       if (isWalletConnected && !isWCDataExist) {
         disconnect();
       }
-
       setOpenModal(false);
     } catch (e) {
       console.log(e);
@@ -107,12 +105,16 @@ export const ConnectModal = () => {
             : "Connect your EVM wallet"}
         </Button>
       </DialogTrigger>
-      <DialogContent className={"max-w-[400px] z-[99999]"}>
-        <DialogHeader className={"text-center w-full"}>
-          <DialogTitle className={"font-medium"}>Connect Wallet</DialogTitle>
+      <DialogContent className={"max-w-[400px] z-[99999] "}>
+        {/* Applying a font-sans or any preferred font */}
+        <DialogHeader className={"text-center w-full "}>
+          <DialogTitle className={"font-lg text-lg"}>
+            Connect Wallet
+          </DialogTitle>
         </DialogHeader>
         {isWalletConnected && isWCDataExist ? (
-          <div className={"w-full h-full flex flex-col"}>
+          <div className={"w-full h-full flex flex-col font-mono"}>
+            {/* Custom font for the content */}
             <span className={"mt-5"}>
               You have already successfully connected your{" "}
               <TooltipProvider>
@@ -130,9 +132,9 @@ export const ConnectModal = () => {
             </Button>
           </div>
         ) : (
-          <div className={"w-full h-full p-5 flex flex-col"}>
+          <div className={"w-full h-full p-5 flex flex-col font-sans"}>
             <Label className={"text-md font-medium"}>
-              1. Connect your EVM Wallet [MetaMask]
+              1. Connect your EVM Wallet
             </Label>
             <Button
               className={"p-5 rounded-lg mt-5 max-w-[200px]"}
@@ -141,7 +143,7 @@ export const ConnectModal = () => {
             >
               {isWalletConnected
                 ? ensName.data || addressFormat(account.address!)
-                : "Connect your EVM wallet"}
+                : "Connect wallet"}
             </Button>
 
             <Label className={"text-md font-medium mt-5"}>
