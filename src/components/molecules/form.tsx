@@ -94,7 +94,7 @@ export const SubmitForm = () => {
           throw new Error(e)
         })
 
-        const tx = await wrappedContract.createPolicy(value.protectedAmount, value.coverageDuration);
+        const tx = await wrappedContract.createPolicy(insuredAmount, duration);
         setTxHash(tx.hash);
 
         console.log("TX", tx);
