@@ -40,10 +40,17 @@ export const SubmitForm = () => {
     },
   });
 
+  const isSubmitButtonDisabled =
+    !!formik.errors.protectedWallet ||
+    !!formik.errors.protectedAmount ||
+    !!formik.errors.premium ||
+    !!formik.errors.coverageUntil ||
+    !!formik.errors.coverageDuration;
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className="w-full h-full mt-10 flex justify-center items-center">
-        <div className={"flex justify-center items-center flex-col w-[600px]"}>
+        <div className={"flex justify-center items-center flex-col w-[700px]"}>
           <Label className={"text-2xl w-full text-center"}>
             Apply for USDC Depeg Protection
           </Label>
@@ -148,6 +155,7 @@ export const SubmitForm = () => {
             type={"submit"}
             variant={"default"}
             className={"w-[50%] mt-5 text-xl py-5"}
+            disabled={isSubmitButtonDisabled}
           >
             Submit
           </Button>
@@ -193,5 +201,37 @@ const HowItWorks = () => (
         </span>
       </AccordionContent>
     </AccordionItem>
+    <AccordionItem value="item-w" className={"w-full mt-5"}>
+      <AccordionTrigger className={"w-full"}>
+        What is the risk bundles?
+      </AccordionTrigger>
+      <AccordionContent className={"flex flex-col w-full"}>
+        Risk Bundles refer to structured investment packages, each containing
+        specific terms regarding interest rates, amounts, and durations. Please
+        choose from the available risk bundles below:
+        <div className={"flex flex-col w-full items-center text-xs mt-5"}>
+          <div className={"w-full flex justify-between items-center border-b"}>
+            <TableItem value={"ID"} />
+            <TableItem value={"Name"} />
+            <TableItem value={"APR"} />
+            <TableItem value={"Min / Max Amount"} />
+            <TableItem value={"Min / Max Duration"} />
+            <TableItem value={"Avaliable"} />
+          </div>
+          <div className={"w-full flex justify-between items-center"}>
+            <TableItem value={"1"} />
+            <TableItem value={"Blue Star"} />
+            <TableItem value={"5.5 %"} />
+            <TableItem value={"USDC 2,000.00 / 25,000.00"} />
+            <TableItem value={"14 / 120 Days"} />
+            <TableItem value={"USDC 7,500.00"} />
+          </div>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
   </Accordion>
+);
+
+const TableItem = ({ value }: { value: string }) => (
+  <span className={"w-full  border-r border-l text-center"}>{value}</span>
 );
