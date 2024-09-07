@@ -2,7 +2,7 @@
 import { BGImage, Header } from "@/components";
 
 import {
-  IDKitWidget,
+  IDKitWidget, IErrorState,
   ISuccessResult,
   VerificationLevel,
 } from "@worldcoin/idkit";
@@ -40,6 +40,9 @@ export default function Home() {
     }
   };
 
+  const errorHandler = (e: IErrorState) => {
+    toast(e.message, { type: "error" })
+  }
   return (
     <div className={"w-full h-screen overflow-hidden scroll-smooth"}>
       <BGImage />
@@ -53,11 +56,11 @@ export default function Home() {
           <div className={"h-full"} id={"form"}>
             <IDKitWidget
               app_id={process.env.WC_APP_ID as `app_${string}`}
-              action="sign_in"
-              signal="user_value"
+              action="verify"
               onSuccess={onSuccess}
               handleVerify={handleVerify}
-              verification_level={VerificationLevel.Orb}
+              onError={errorHandler}
+              verification_level={VerificationLevel.Device}
             >
               {({ open }) => (
                 <Button onClick={open}>Verify with World ID</Button>
