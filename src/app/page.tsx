@@ -1,5 +1,5 @@
 "use client";
-import { BGImage, Header } from "@/components";
+import { BGImage, Header, TableComponent, SubmitForm } from "@/components";
 
 import {
   IDKitWidget,
@@ -7,10 +7,8 @@ import {
   ISuccessResult,
   VerificationLevel,
 } from "@worldcoin/idkit";
-import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { useWCContext } from "@/lib/context";
-import { SubmitForm } from "@/components/molecules/form";
 
 export default function Home() {
   const { wcSaveAuthData } = useWCContext();
@@ -47,7 +45,7 @@ export default function Home() {
   };
 
   return (
-    <div className={"w-full min-h-screen overflow-hidden scroll-smooth"}>
+    <div className={"w-full min-h-screen top-0 overflow-hidden scroll-smooth relative"}>
       <BGImage />
       <Header />
       <div className={"w-full min-h-screen p-12 z-10 pt-20"}>
@@ -71,6 +69,7 @@ export default function Home() {
           {/*  </IDKitWidget>*/}
           {/*</div>*/}
           <SubmitForm />
+          <TableComponent />
         </div>
       </div>
     </div>

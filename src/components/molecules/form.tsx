@@ -3,19 +3,16 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { formScheme } from "@/lib/schemas";
-import { useFormik } from "formik";
-import { toast } from "react-toastify";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
+  Label, Input, Button,
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@/components/";
+import { formScheme } from "@/lib/schemas";
+import { useFormik } from "formik";
+import { toast } from "react-toastify";
+
 
 export const SubmitForm = () => {
   const formik = useFormik({
@@ -48,7 +45,7 @@ export const SubmitForm = () => {
     !!formik.errors.coverageDuration;
 
   return (
-    <form onSubmit={formik.handleSubmit}>
+    <form onSubmit={formik.handleSubmit} id={"form"}>
       <div className="w-full h-full mt-10 flex justify-center items-center">
         <div className={"flex justify-center items-center flex-col w-[700px]"}>
           <Label className={"text-2xl w-full text-center"}>
