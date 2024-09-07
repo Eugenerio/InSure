@@ -8,19 +8,26 @@ export default function Home() {
         "w-full min-h-screen top-0 overflow-hidden scroll-smooth relative"
       }
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-cyan-500 to-violet-500 blur-2xl z-0"></div>
+      {/* Dark background with gradient and subtle blur effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-800 to-gray-900 blur-lg z-0"></div>
 
       <Header />
-      <div className={"w-full min-h-screen p-12 z-10 pt-20 relative"}>
+
+      <div className={"w-full min-h-screen p-32 z-10 pt-20 relative"}>
         <div
           className={
-            "w-full h-full border rounded-2xl bg-white px-24 py-12 flex flex-col"
+            "w-full h-full border rounded-2xl bg-white px-24 py-12 flex flex-col shadow-lg"
           }
         >
+          {/* Form Component */}
           <SubmitForm />
+
+          {/* Separator */}
           <div className="mt-32 flex items-center justify-center">
             <hr className="w-full border-t-2 border-gray-300" />
           </div>
+
+          {/* Table Component */}
           <TableComponent />
         </div>
       </div>
