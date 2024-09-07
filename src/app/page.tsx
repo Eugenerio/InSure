@@ -23,7 +23,7 @@ export default function Home() {
           <SubmitForm />
 
           {/* Separator */}
-          <div className="mt-32 flex items-center justify-center">
+          <div className="mt-32 mb-24 flex items-center justify-center">
             <hr className="w-full border-t-2 border-gray-300" />
           </div>
 
