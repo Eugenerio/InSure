@@ -9,7 +9,7 @@ export default function Home() {
       }
     >
       {/* Dark background with gradient and subtle blur effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-800 to-gray-900 blur-lg z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-800 to-gray-900 z-0"></div>
 
       <Header />
 
