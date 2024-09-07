@@ -25,7 +25,7 @@ export const ConnectModal = () => {
   const { proof, setProof } = useWCContext();
   const { connect } = useConnect();
 
-  console.log("WCAuthData", proof);
+
   const { disconnect } = useDisconnect();
 
   const account = useAccount();
