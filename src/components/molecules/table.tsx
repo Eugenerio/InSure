@@ -7,7 +7,7 @@ export const TableComponent = () => {
   const items = [];
   return (
     <div
-      className={"w-full h-screen mt-30 flex justify-center items-center"}
+      className={"w-full h-screen flex justify-center items-center"}
       id={"table"}
     >
       <div
@@ -48,7 +48,7 @@ const TableItem = ({ value, className }: TableItemProps) => {
     <div
       className={cn(
         "h-full w-full flex justify-center items-center",
-        className,
+        className
       )}
     >
       {value}
