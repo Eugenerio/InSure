@@ -75,20 +75,20 @@ export const SubmitForm = () => {
 
         console.log("Wrapped Contract", wrappedContract);
         const insuredAmount = parseUnits(value.protectedAmount.toString(), BIG_DECIMALS);
-        const duration = value.protectedAmount * SECONDS_IN_DAY;
-        const policyPriceAPR = 5;
+        const duration = BigInt(value.protectedAmount * SECONDS_IN_DAY);
+        const policyPriceAPR = BigInt(5);
 
         await switchChainAsync({
           chainId: OP_SEPOLIA,
         });
 
-        const insuranceFee = (insuredAmount * BigInt(policyPriceAPR) * BigInt(duration)) / BigInt(YEAR_DURATION * 100);
+        const insuranceFee = (insuredAmount * policyPriceAPR * duration) / BigInt(YEAR_DURATION * 100);
 
         await writeContract(wagmiConfig, {
           abi: erc20Abi,
           address: "0x478b538abc23e414a1007f715f95e20b85e728a3",
           functionName: "approve",
-          args: [insuranceAddress, BigInt(insuranceFee) ],
+          args: [insuranceAddress, insuranceFee ],
           chainId: OP_SEPOLIA
         }).catch(e => {
           throw new Error(e)
@@ -117,7 +117,7 @@ export const SubmitForm = () => {
         }
 
         if (receipt && receipt.status === "success") {
-          // const blockTimestamp = (await ethers.provider.getBlock(receipt.blockNumber)).timestamp;
+
           const block = await getBlock(wagmiConfig, {
             blockHash: receipt.blockHash
           });
@@ -130,6 +130,16 @@ export const SubmitForm = () => {
           );
 
           const policyIdHash = policyId.toHexString();
+
+          const res = await fetch("/api/add", {
+            body: JSON.stringify({
+              policyId: policyIdHash,
+              owner: value.protectedWallet,
+              amount: value.protectedAmount,
+              duration: value.coverageDuration
+            }),
+            method: "POST",
+          });
 
           toast.success("Success!");
           setStatus("success")
