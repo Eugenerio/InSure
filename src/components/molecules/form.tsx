@@ -24,7 +24,7 @@ import {getTransactionReceipt, writeContract} from "@wagmi/core";
 import {wagmiConfig} from "@/lib/wagmi/config";
 import {erc20Abi} from "viem";
 import {TransactionModal} from "@/components/molecules/transaction";
-import insuranceAbiJSON from "@/lib/wagmin/contract/abi.json";
+import insuranceAbiJSON from "@/lib/wagmi/contract/abi.json";
 
 const OP_SEPOLIA = 11155420;
 const YEAR_DURATION = 360;
