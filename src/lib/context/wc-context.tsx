@@ -1,14 +1,9 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
 import { toast } from "react-toastify";
 
-interface WCAuthData {
-  iv: string;
-  payload: string;
-}
-
 interface WCContext {
-  wcAuthData: WCAuthData | null;
-  wcSaveAuthData: (iv: string, payload: string) => void;
+  proof: string | null;
+  setProof: (proof: string) => void;
 }
 
 const WCContext = createContext<WCContext | undefined>(undefined);
@@ -18,14 +13,10 @@ interface WCProviderProps {
 }
 
 export const WCProvider: React.FC<WCProviderProps> = ({ children }) => {
-  const [wcAuthData, setWcAuthData] = useState<WCAuthData | null>(null);
-
-  const wcSaveAuthData = (iv: string, payload: string) => {
-    setWcAuthData({ iv, payload });
-  };
+  const [proof, setProof] = useState<string | null>(null);
 
   return (
-    <WCContext.Provider value={{ wcAuthData, wcSaveAuthData }}>
+    <WCContext.Provider value={{ proof, setProof }}>
       {children}
     </WCContext.Provider>
   );
@@ -34,10 +25,10 @@ export const WCProvider: React.FC<WCProviderProps> = ({ children }) => {
 export const useWCContext = (): WCContext => {
   const context = useContext(WCContext);
   if (!context) {
-    toast("useAuth must be used within an AuthProvider", {
+    toast("useWCContext must be used within a WCProvider", {
       type: "error",
     });
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useWCContext must be used within a WCProvider");
   }
   return context;
 };

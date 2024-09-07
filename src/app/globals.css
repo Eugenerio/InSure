@@ -80,3 +80,8 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+#idkit-widget {
+  z-index: 999999;
+  position: absolute;
+}

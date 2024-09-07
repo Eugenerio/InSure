@@ -20,6 +20,8 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
+import { ConnectModal } from "./molecules/connect-modal";
+
 export {
   BGImage,
   Header,
@@ -36,4 +38,5 @@ export {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  ConnectModal,
 };

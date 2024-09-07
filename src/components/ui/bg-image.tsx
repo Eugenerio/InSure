@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 export const BGImage = () => (
   <div className={"absolute -z-10 w-full h-screen"}>

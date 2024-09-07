@@ -33,7 +33,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ClientProviders>{children}</ClientProviders>
-        <ToastContainer position={"bottom-right"} />
+        <ToastContainer
+          position={"bottom-right"}
+          style={{
+            zIndex: 99999999999,
+          }}
+        />
       </body>
     </html>
   );
