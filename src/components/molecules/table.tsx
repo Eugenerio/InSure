@@ -1,11 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAccount } from "wagmi";
 import { cn } from "@/lib/utils";
+import {useQuery} from "@tanstack/react-query";
+import {addressFormat} from "@/lib/helpers";
+import {Button} from "@/components";
 
 export const TableComponent = () => {
   const account = useAccount();
 
-  const items: any[] = [];
+  const { data: list } = useQuery({
+    queryKey: ["insurances", account.address],
+    queryFn: async () => {
+      const res = await fetch(`/api/get_all?wallet=${account.address}`, {
+        method: "GET",
+      }).then(res => res.json());
+
+
+
+      return res.objects || [];
+    }
+  })
+
 
   return (
     <div
@@ -14,10 +29,9 @@ export const TableComponent = () => {
     >
       <div
         className={
-          "w-[80%] min-h-[400px] max-h-full flex flex-col justify-start items-center border bg-white shadow-lg rounded-lg overflow-hidden"
+          "w-[85%] min-h-[400px] max-h-full flex flex-col justify-start items-center border bg-white shadow-lg rounded-lg overflow-hidden"
         }
       >
-        {/* Header Row */}
         <div
           className={
             "flex flex-row w-full border-b h-16 bg-black text-white font-semibold"
@@ -29,14 +43,15 @@ export const TableComponent = () => {
           <TableItem value={"APR"} />
         </div>
 
-        {/* Table Content */}
-        {items.length > 0 ? (
-          items.map((item, index) => (
-            <div key={index} className="flex flex-row w-full h-16 border-b">
-              <TableItem value={item.name} />
+        {list.length > 0 ? (
+          list.map((item, index) => (
+            <div key={`list-${index}`} className="flex flex-row w-full h-16 border-b px-2">
+              <TableItem value={addressFormat(item.policyId)} />
               <TableItem value={item.amount} />
               <TableItem value={item.duration} />
-              <TableItem value={item.apr} />
+            <div className={"flex justify-center items-center w-full"}>
+              <Button>Get repayment</Button>
+            </div>
             </div>
           ))
         ) : (
@@ -60,7 +75,7 @@ const TableItem = ({ value, className }: TableItemProps) => {
   return (
     <div
       className={cn(
-        "h-full w-1/4 flex justify-center items-center px-4",
+        "h-full w-full flex justify-center items-center px-4",
         className
       )}
     >
