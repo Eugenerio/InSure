@@ -38,16 +38,6 @@ contract Insurance is IInsurance, Ownable, RedstoneConsumerNumericMock {
         oracleDecimals = _oracleDecimals;
     }
 
-    // function getLatestStxPrice() public view returns (uint256) {
-    //     bytes32 dataFeedId = bytes32("USDT");
-    //     return getOracleNumericValueFromTxMsg(dataFeedId);
-    // }
-
-    // function validateTimestamp(uint256 receivedTimestampMilliseconds)
-    //     public
-    //     view
-    //     override(RedstoneConsumerNumericMock, MainDemoConsumerBase)
-    // {}
 
     function createPolicy(uint256 insuredAmount, uint256 duration) public returns (uint256 policyId) {
         uint256 insuranceFee = (insuredAmount * policyPriceAPR * duration) / (YEAR_DURATION * 100);
