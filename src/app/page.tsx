@@ -1,7 +1,21 @@
 "use client";
 import { Header, TableComponent, SubmitForm, BGImage } from "@/components";
+import {useQuery} from "@tanstack/react-query";
+import {useAccount} from "wagmi";
 
 export default function Home() {
+  const account = useAccount();
+  const { data: list = [], refetch } = useQuery({
+    queryKey: ["insurances", account.address],
+    queryFn: async () => {
+      if (!account.address) return [];
+      const res = await fetch(`/api/get_all?wallet=${account.address}`, {
+        method: "GET",
+      }).then((res) => res.json());
+
+      return res.objects || [];
+    },
+  });
   return (
     <div
       className={
@@ -18,7 +32,7 @@ export default function Home() {
           }
         >
           {/* Form Component */}
-          <SubmitForm />
+          <SubmitForm refetch={refetch}/>
 
           {/* Separator */}
           <div className="mt-32 mb-24 flex items-center justify-center">
@@ -26,7 +40,7 @@ export default function Home() {
           </div>
 
           {/* Table Component */}
-          <TableComponent />
+          <TableComponent list={list} refetch={refetch}/>
         </div>
       </div>
     </div>

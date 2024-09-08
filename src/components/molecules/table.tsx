@@ -1,48 +1,40 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useAccount, useSwitchChain } from "wagmi";
-import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import { addressFormat } from "@/lib/helpers";
-import { Button } from "@/components";
-import { insuranceAddress } from "@/lib/wagmi/contract/abi";
-import { useEthersSigner } from "@/lib/wagmi/ethersjs";
-import { Contract } from "ethers";
-import { erc20Abi } from "viem";
-import { WrapperBuilder } from "@redstone-finance/evm-connector";
-import { getTransactionReceipt, writeContract } from "viem/actions";
-import { wagmiConfig } from "@/lib/wagmi/config";
-import { toast } from "react-toastify";
+import {useAccount, useSwitchChain} from "wagmi";
+import {cn} from "@/lib/utils";
+import {useQuery} from "@tanstack/react-query";
+import {addressFormat} from "@/lib/helpers";
+import {Button} from "@/components";
+import {useEthersSigner} from "@/lib/wagmi/ethersjs";
+import {Contract} from "ethers";
+import {WrapperBuilder} from "@redstone-finance/evm-connector";
+import {toast} from "react-toastify";
 
 const OP_SEPOLIA = 11155420;
 
-export const TableComponent = () => {
-  const account = useAccount();
+interface Props {
+  list: any[];
+  refetch: () => void;
+}
+
+export const TableComponent = ({list, refetch}: Props) => {
+
   const signer = useEthersSigner();
 
   const { switchChainAsync } = useSwitchChain();
 
-  const getTransactionReceipt = async (provider: any, txHash: any) => {
-    try {
-      const receipt = await provider.getTransactionReceipt(txHash);
-      return receipt;
-    } catch (error) {
-      console.error("Error fetching receipt:", error);
-      throw error;
-    }
-  };
 
   const get_repayment = async (item: any) => {
     try {
       const res = require("@/lib/wagmi/contract/abi.json");
       const contract = new Contract(
-        "0x3ed6f48ba9fca1a33e959a7628f5b59c15b6b6b9",
-        res.abi,
-        signer
+          "0x3ed6f48ba9fca1a33e959a7628f5b59c15b6b6b9",
+          res.abi,
+          signer
       ) as any;
       console.log("Contract", contract);
       const wrappedContract = await WrapperBuilder.wrap(
-        contract
+          contract
       ).usingSimpleNumericMock({
         mockSignersCount: 10,
         dataPoints: [{ dataFeedId: "USDT", value: 0.7 }],
@@ -53,27 +45,32 @@ export const TableComponent = () => {
       const tx = await wrappedContract.getRepayment(item.policyId);
       console.log("Transaction", tx);
 
-      let receipt;
-      const pollInterval = 2000; // Increased interval
-      const maxRetries = 60; // Increased retries
+      let receipt = null;
+      const pollInterval = 1000; // 1 second
+      const maxRetries = 30;     // 30 retries = 30 seconds timeout
+
       for (let i = 0; i < maxRetries; i++) {
         try {
-          receipt = await getTransactionReceipt(signer.provider, tx.hash);
-          console.log("Receipt", receipt);
+          receipt = await signer?.provider.getTransactionReceipt(tx.hash);
           if (receipt) {
+            console.log("Receipt", receipt);
             break;
           }
         } catch (e) {
           console.error("Error fetching transaction receipt", e);
         }
+
+
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
       }
 
-      if (receipt && receipt.status === "success") {
+      console.log("Receipt", receipt);
+      if (receipt && receipt.status === 1) {
         await fetch("/api/delete", {
           body: JSON.stringify({ policyId: item.policyId }),
           method: "POST",
         });
+        void refetch();
         toast.success("Success!");
       } else {
         toast.error("Reverted Transaction");
@@ -83,18 +80,6 @@ export const TableComponent = () => {
       toast.error(e.message);
     }
   };
-
-  const { data: list = [] } = useQuery({
-    queryKey: ["insurances", account.address],
-    queryFn: async () => {
-      if (!account.address) return [];
-      const res = await fetch(`/api/get_all?wallet=${account.address}`, {
-        method: "GET",
-      }).then((res) => res.json());
-
-      return res.objects || [];
-    },
-  });
 
   return (
     <div

@@ -32,7 +32,10 @@ const YEAR_DURATION = 360 * 24 * 60 * 60;
 const SECONDS_IN_DAY  = 86400;
 const BIG_DECIMALS = 18;
 
-export const SubmitForm = () => {
+interface Props {
+  refetch: () => void;
+}
+export const SubmitForm = ({ refetch }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [txHash, setTxHash] = useState<string>("");
   const signer = useEthersSigner()
@@ -141,6 +144,7 @@ export const SubmitForm = () => {
             method: "POST",
           });
 
+          void refetch();
           toast.success("Success!");
           setStatus("success")
         } else {
