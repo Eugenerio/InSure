@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Tooltip,
@@ -15,21 +16,20 @@ import {
 import { formScheme } from "@/lib/schemas";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
-import {WrapperBuilder} from "@redstone-finance/evm-connector";
-import {insuranceAddress} from "@/lib/wagmi/contract/abi";
-import {useAccount, useSwitchChain} from "wagmi";
-import {useState} from "react";
-import {getBlock, getTransactionReceipt, writeContract} from "@wagmi/core";
-import {wagmiConfig} from "@/lib/wagmi/config";
-import {erc20Abi, parseUnits} from "viem";
-import {TransactionModal} from "@/components/molecules/transaction";
-import {Contract} from "ethers";
-import {useEthersSigner} from "@/lib/wagmi/ethersjs";
-
+import { WrapperBuilder } from "@redstone-finance/evm-connector";
+import { insuranceAddress } from "@/lib/wagmi/contract/abi";
+import { useAccount, useSwitchChain } from "wagmi";
+import { useState } from "react";
+import { getBlock, getTransactionReceipt, writeContract } from "@wagmi/core";
+import { wagmiConfig } from "@/lib/wagmi/config";
+import { erc20Abi, parseUnits } from "viem";
+import { TransactionModal } from "@/components/molecules/transaction";
+import { Contract } from "ethers";
+import { useEthersSigner } from "@/lib/wagmi/ethersjs";
 
 const OP_SEPOLIA = 11155420;
 const YEAR_DURATION = 360 * 24 * 60 * 60;
-const SECONDS_IN_DAY  = 86400;
+const SECONDS_IN_DAY = 86400;
 const BIG_DECIMALS = 18;
 
 interface Props {
@@ -38,8 +38,10 @@ interface Props {
 export const SubmitForm = ({ refetch }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [txHash, setTxHash] = useState<string>("");
-  const signer = useEthersSigner()
-  const [ status, setStatus ] = useState<"loading" | "error" | "success" | "idle">("idle");
+  const signer = useEthersSigner();
+  const [status, setStatus] = useState<
+    "loading" | "error" | "success" | "idle"
+  >("idle");
 
   const account = useAccount();
 
@@ -58,26 +60,31 @@ export const SubmitForm = ({ refetch }: Props) => {
     onSubmit: async (value) => {
       try {
         setOpen(true);
-        setStatus("loading")
+        setStatus("loading");
 
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const res = require("@/lib/wagmi/contract/abi.json");
         console.log("ABI", res.abi);
-        console.log("Signer", signer)
+        console.log("Signer", signer);
         console.log("insuranceAddress", insuranceAddress);
-        const contract = new Contract("0x3ed6f48ba9fca1a33e959a7628f5b59c15b6b6b9",
-            res.abi,
-            signer) as any;
-        console.log("Contract", contract)
-        const wrappedContract = WrapperBuilder.wrap(contract).usingSimpleNumericMock({
+        const contract = new Contract(
+          "0x3ed6f48ba9fca1a33e959a7628f5b59c15b6b6b9",
+          res.abi,
+          signer
+        ) as any;
+        console.log("Contract", contract);
+        const wrappedContract = WrapperBuilder.wrap(
+          contract
+        ).usingSimpleNumericMock({
           mockSignersCount: 10,
-          dataPoints: [
-            { dataFeedId: "USDT", value: 1 },
-          ],
-        })
+          dataPoints: [{ dataFeedId: "USDT", value: 1 }],
+        });
 
         console.log("Wrapped Contract", wrappedContract);
-        const insuredAmount = parseUnits(value.protectedAmount.toString(), BIG_DECIMALS);
+        const insuredAmount = parseUnits(
+          value.protectedAmount.toString(),
+          BIG_DECIMALS
+        );
         const duration = BigInt(value.protectedAmount * SECONDS_IN_DAY);
         const policyPriceAPR = BigInt(5);
 
@@ -85,23 +92,24 @@ export const SubmitForm = ({ refetch }: Props) => {
           chainId: OP_SEPOLIA,
         });
 
-        const insuranceFee = (insuredAmount * policyPriceAPR * duration) / BigInt(YEAR_DURATION * 100);
+        const insuranceFee =
+          (insuredAmount * policyPriceAPR * duration) /
+          BigInt(YEAR_DURATION * 100);
 
         await writeContract(wagmiConfig, {
           abi: erc20Abi,
           address: "0x478b538abc23e414a1007f715f95e20b85e728a3",
           functionName: "approve",
-          args: [insuranceAddress, insuranceFee ],
-          chainId: OP_SEPOLIA
-        }).catch(e => {
-          throw new Error(e)
-        })
+          args: [insuranceAddress, insuranceFee],
+          chainId: OP_SEPOLIA,
+        }).catch((e) => {
+          throw new Error(e);
+        });
 
         const tx = await wrappedContract.createPolicy(insuredAmount, duration);
         setTxHash(tx.hash);
 
         console.log("TX", tx);
-
 
         let receipt;
         const pollInterval = 1000;
@@ -120,16 +128,15 @@ export const SubmitForm = ({ refetch }: Props) => {
         }
 
         if (receipt && receipt.status === "success") {
-
           const block = await getBlock(wagmiConfig, {
-            blockHash: receipt.blockHash
+            blockHash: receipt.blockHash,
           });
 
           const policyId = await wrappedContract.hashPolicy(
-              account.address,
-              parseUnits(value.protectedAmount.toString(), BIG_DECIMALS),
-              block.timestamp,
-              duration
+            account.address,
+            parseUnits(value.protectedAmount.toString(), BIG_DECIMALS),
+            block.timestamp,
+            duration
           );
 
           const policyIdHash = policyId.toHexString();
@@ -139,17 +146,17 @@ export const SubmitForm = ({ refetch }: Props) => {
               policyId: policyIdHash,
               owner: value.protectedWallet,
               amount: value.protectedAmount,
-              duration: value.coverageDuration
+              duration: value.coverageDuration,
             }),
             method: "POST",
           });
 
           void refetch();
           toast.success("Success!");
-          setStatus("success")
+          setStatus("success");
         } else {
           toast("Reverted Transaction", { type: "error" });
-          setStatus("error")
+          setStatus("error");
         }
       } catch (e: any) {
         console.log(e);
@@ -170,7 +177,7 @@ export const SubmitForm = ({ refetch }: Props) => {
         <div className="flex w-full">
           <div className="flex flex-col w-[55%] p-6 bg-white shadow-md rounded-lg">
             <Label className="text-3xl font-bold mb-8 w-full text-center">
-              Apply for USDC Depeg Protection
+              Apply for USDT Depeg Protection
             </Label>
             <div className="flex justify-between items-center w-full mt-5">
               <div className="flex flex-col w-full">
@@ -256,7 +263,6 @@ export const SubmitForm = ({ refetch }: Props) => {
         txHash={txHash}
         status={status}
       />
-
     </form>
   );
 };
@@ -323,8 +329,8 @@ const HowItWorks = () => (
           <div className="w-full flex justify-between items-center py-2">
             <TableItem value={"2"} />
             <TableItem value={"Moderate Bundle"} />
-            <TableItem value={"5.2%"} />
-            <TableItem value={"5K / 50K USDC"} />
+            <TableItem value={"5.0%"} />
+            <TableItem value={"100 / 50K USDC"} />
             <TableItem value={"4 months"} />
           </div>
         </div>

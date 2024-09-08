@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {useAccount, useSwitchChain} from "wagmi";
-import {cn} from "@/lib/utils";
-import {useQuery} from "@tanstack/react-query";
-import {addressFormat} from "@/lib/helpers";
-import {Button} from "@/components";
-import {useEthersSigner} from "@/lib/wagmi/ethersjs";
-import {Contract} from "ethers";
-import {WrapperBuilder} from "@redstone-finance/evm-connector";
-import {toast} from "react-toastify";
+import { useSwitchChain } from "wagmi";
+import { cn } from "@/lib/utils";
+import { addressFormat } from "@/lib/helpers";
+import { Button } from "@/components";
+import { useEthersSigner } from "@/lib/wagmi/ethersjs";
+import { Contract } from "ethers";
+import { WrapperBuilder } from "@redstone-finance/evm-connector";
+import { toast } from "react-toastify";
 
 const OP_SEPOLIA = 11155420;
 
@@ -17,24 +16,22 @@ interface Props {
   refetch: () => void;
 }
 
-export const TableComponent = ({list, refetch}: Props) => {
-
+export const TableComponent = ({ list, refetch }: Props) => {
   const signer = useEthersSigner();
 
   const { switchChainAsync } = useSwitchChain();
-
 
   const get_repayment = async (item: any) => {
     try {
       const res = require("@/lib/wagmi/contract/abi.json");
       const contract = new Contract(
-          "0x3ed6f48ba9fca1a33e959a7628f5b59c15b6b6b9",
-          res.abi,
-          signer
+        "0x3ed6f48ba9fca1a33e959a7628f5b59c15b6b6b9",
+        res.abi,
+        signer
       ) as any;
       console.log("Contract", contract);
       const wrappedContract = await WrapperBuilder.wrap(
-          contract
+        contract
       ).usingSimpleNumericMock({
         mockSignersCount: 10,
         dataPoints: [{ dataFeedId: "USDT", value: 0.7 }],
@@ -47,7 +44,7 @@ export const TableComponent = ({list, refetch}: Props) => {
 
       let receipt = null;
       const pollInterval = 1000; // 1 second
-      const maxRetries = 30;     // 30 retries = 30 seconds timeout
+      const maxRetries = 30; // 30 retries = 30 seconds timeout
 
       for (let i = 0; i < maxRetries; i++) {
         try {
@@ -57,9 +54,8 @@ export const TableComponent = ({list, refetch}: Props) => {
             break;
           }
         } catch (e) {
-          console.error("Error fetching transaction receipt", e);
+          console.error("Error fetching transaction receipt");
         }
-
 
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
       }
@@ -76,8 +72,8 @@ export const TableComponent = ({list, refetch}: Props) => {
         toast.error("Reverted Transaction");
       }
     } catch (e: any) {
-      console.error("Error during repayment:", e);
-      toast.error(e.message);
+      console.error("Error during repayment:");
+      toast.error("Error during repayment");
     }
   };
 
